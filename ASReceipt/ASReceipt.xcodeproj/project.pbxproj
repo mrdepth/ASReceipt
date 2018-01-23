@@ -1209,11 +1209,13 @@
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ThirdParty/OpenSSL/include";
 				INFOPLIST_FILE = ASReceipt/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/OpenSSL/lib",
 				);
+				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.shimanski.Receipt;
 				PRODUCT_NAME = ASReceipt;
 				SDKROOT = iphoneos11.2;
@@ -1239,11 +1241,13 @@
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ThirdParty/OpenSSL/include";
 				INFOPLIST_FILE = ASReceipt/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/OpenSSL/lib",
 				);
+				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.shimanski.Receipt;
 				PRODUCT_NAME = ASReceipt;
 				SDKROOT = iphoneos11.2;
