@@ -9,17 +9,40 @@
 import Foundation
 #if os(iOS)
 import UIKit
+import StoreKit
 #endif
 import OpenSSL
 import Payload
 
+#if os(iOS)
 
+class RequestDelegate: NSObject, SKRequestDelegate {
+	
+	var completion: ((SKRequest, Error?) -> Void)?
+	
+	init(completion: ((SKRequest, Error?) -> Void)?) {
+		self.completion = completion
+		super.init()
+	}
+	
+	func requestDidFinish(_ request: SKRequest) {
+		completion?(request, nil)
+	}
+	
+	func request(_ request: SKRequest, didFailWithError error: Error) {
+		completion?(request, error)
+	}
+	
+}
+#endif
 
 public enum ReceiptError: Error {
 	case unknown
 	case pkcs7(String)
 	case receiptMalformed
 	case validationFailed(String)
+	case unableToObtainVendorIdentifier
+	case receiptNotFound
 	
 	static func lastError() -> ReceiptError? {
 		ERR_load_crypto_strings()
@@ -30,6 +53,10 @@ public enum ReceiptError: Error {
 	}
 }
 
+public enum ReceiptFetchResult {
+	case success(Receipt)
+	case failure(Error)
+}
 
 public class Receipt: Encodable {
 	
@@ -65,8 +92,12 @@ public class Receipt: Encodable {
 		}
 		
 		public var isExpired: Bool {
-			guard let date = expiresDate else {return false}
+			guard let date = expiresDate else {return true}
 			return date < Date()
+		}
+		
+		public var isSubscription: Bool {
+			return expiresDate != nil
 		}
 		
 		public func encode(to encoder: Encoder) throws {
@@ -212,17 +243,73 @@ public class Receipt: Encodable {
 		return true
 	}
 	
-#if os(iOS)
-	public static var `default`: Receipt? {
+	public static var local: Receipt? {
 		guard let url = Bundle.main.appStoreReceiptURL else {return nil}
 		guard let data = try? Data(contentsOf: url) else {return nil}
 		return try? Receipt(data: data)
 	}
-#endif
 
 	public func purchase(transactionID: String) -> Purchase? {
 		return inAppPurchases?.first(where: {$0.transactionID == transactionID})
 	}
+	
+	#if os(iOS)
+	public class func fetchValidReceipt(completion: @escaping(ReceiptFetchResult) -> Void) {
+		var left = 3
+		
+		func fetchReceipt(uuid: UUID) {
+			do {
+				guard let receipt = Receipt.local else {throw ReceiptError.receiptNotFound}
+				try receipt.verify(uuid: uuid)
+				completion(.success(receipt))
+			}
+			catch {
+				/*let request = SKReceiptRefreshRequest()
+				var delegate: RequestDelegate?
+				delegate = RequestDelegate { (request, error) in
+					DispatchQueue.main.async {
+						if let error = error {
+							completion(.failure(error))
+						}
+						else {
+							do {
+								guard let receipt = Receipt.local else {throw ReceiptError.receiptNotFound}
+								try receipt.verify(uuid: uuid)
+								completion(.success(receipt))
+							}
+							catch {
+								completion(.failure(error))
+							}
+						}
+						delegate = nil
+					}
+				}
+				request.delegate = delegate
+				request.start()*/
+				completion(.failure(error))
+			}
+		}
+		
+		
+		func fetchUUID() {
+			if let uuid = UIDevice.current.identifierForVendor {
+				fetchReceipt(uuid: uuid)
+			}
+			else if left > 1{
+				left -= 1
+				DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+					fetchUUID()
+				}
+			}
+			else {
+				completion(.failure(ReceiptError.unableToObtainVendorIdentifier))
+			}
+		}
+		
+		fetchUUID()
+
+	}
+	#endif
 }
 
 
@@ -327,3 +414,4 @@ extension UnsafeMutablePointer where Pointee == ReceiptAttribute {
 		return dateFormatter.date(from: s)
 	}
 }
+

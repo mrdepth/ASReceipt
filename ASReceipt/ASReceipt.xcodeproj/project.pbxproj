@@ -283,6 +283,8 @@
 		124BD44120171D0F00816946 /* constr_TYPE.h in Headers */ = {isa = PBXBuildFile; fileRef = 124B29272016301E0020C059 /* constr_TYPE.h */; };
 		124BD44220171D0F00816946 /* ossl_typ.h in Headers */ = {isa = PBXBuildFile; fileRef = 124B2978201630410020C059 /* ossl_typ.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		124BD44420171D0F00816946 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 124B2973201630410020C059 /* LICENSE */; };
+		124BD4A420186C4600816946 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 124B29C8201630410020C059 /* libcrypto.a */; };
+		124BD4A520186C4900816946 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 124B29C9201630410020C059 /* libssl.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -440,6 +442,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				124BD4A520186C4900816946 /* libssl.a in Frameworks */,
+				124BD4A420186C4600816946 /* libcrypto.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

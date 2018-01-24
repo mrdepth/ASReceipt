@@ -19,7 +19,7 @@ if CommandLine.arguments.count == 2 {
 		let data = try Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1]))
 
 		let receipt = try Receipt(data: data)
-
+		
 		let encoder = JSONEncoder()
 		encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
 		
