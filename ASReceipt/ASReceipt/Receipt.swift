@@ -58,7 +58,20 @@ public enum ReceiptFetchResult {
 	case failure(Error)
 }
 
+protocol Enum {
+	associatedtype RawValue
+	init?(rawValue: RawValue)
+}
+
 public class Receipt: Encodable {
+	
+	public enum InAppType: Int, Codable {
+		case nonConsumable = 0
+		case consumable = 1
+		case nonRenewingSubscription = 2
+		case autoRenewableSubscription = 3
+	}
+	
 	
 	public class Purchase: Encodable {
 		private var attributes: [CodingKeys: Any]
@@ -69,8 +82,10 @@ public class Receipt: Encodable {
 		public lazy var originalTransactionID: String?	= (self.attributes[.originalTransactionID] as? Attribute)?.value()
 		public lazy var purchaseDate: Date				= (self.attributes[.purchaseDate] as? Attribute)?.value() ?? .distantPast
 		public lazy var originalPurchaseDate: Date?		= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
+		public lazy var inAppType: InAppType?			= (self.attributes[.inAppType] as? Attribute)?.value()
 		public lazy var expiresDate: Date?				= (self.attributes[.expiresDate] as? Attribute)?.value()
 		public lazy var isInIntroOfferPeriod: Bool?		= (self.attributes[.isInIntroOfferPeriod] as? Attribute)?.value()
+		public lazy var isTrialPeriod: Bool?			= (self.attributes[.isTrialPeriod] as? Attribute)?.value()
 		public lazy var cancellationDate: Date?			= (self.attributes[.cancellationDate] as? Attribute)?.value()
 		public lazy var webOrderLineItemID: Int?		= (self.attributes[.webOrderLineItemID] as? Attribute)?.value()
 		
@@ -81,8 +96,10 @@ public class Receipt: Encodable {
 			case originalTransactionID = 1705
 			case purchaseDate = 1704
 			case originalPurchaseDate = 1706
+			case inAppType = 1707
 			case expiresDate = 1708
 			case isInIntroOfferPeriod = 1719
+			case isTrialPeriod = 1713
 			case cancellationDate = 1712
 			case webOrderLineItemID = 1711
 		}
@@ -96,10 +113,6 @@ public class Receipt: Encodable {
 			return date < Date()
 		}
 		
-		public var isSubscription: Bool {
-			return expiresDate != nil
-		}
-		
 		public func encode(to encoder: Encoder) throws {
 			var container = encoder.container(keyedBy: CodingKeys.self)
 			try container.encodeIfPresent(quantity, forKey: .quantity)
@@ -108,8 +121,10 @@ public class Receipt: Encodable {
 			try container.encodeIfPresent(originalTransactionID, forKey: .originalTransactionID)
 			try container.encodeIfPresent(purchaseDate, forKey: .purchaseDate)
 			try container.encodeIfPresent(originalPurchaseDate, forKey: .originalPurchaseDate)
+			try container.encodeIfPresent(inAppType, forKey: .inAppType)
 			try container.encodeIfPresent(expiresDate, forKey: .expiresDate)
 			try container.encodeIfPresent(isInIntroOfferPeriod, forKey: .isInIntroOfferPeriod)
+			try container.encodeIfPresent(isTrialPeriod, forKey: .isTrialPeriod)
 			try container.encodeIfPresent(cancellationDate, forKey: .cancellationDate)
 			try container.encodeIfPresent(webOrderLineItemID, forKey: .webOrderLineItemID)
 		}
@@ -118,10 +133,12 @@ public class Receipt: Encodable {
 	private var pkcs7: UnsafeMutablePointer<PKCS7>
 	private var attributes: [CodingKeys: Any]
 	
+	public lazy var receiptType: String? 				= (self.attributes[.receiptType] as? Attribute)?.value() ?? ""
 	public lazy var bundleID: String 					= (self.attributes[.bundleID] as? Attribute)?.value() ?? ""
 	public lazy var applicationVersion: String			= (self.attributes[.applicationVersion] as? Attribute)?.value() ?? ""
 	public lazy var opaqueValue: Data?					= (self.attributes[.opaqueValue] as? Attribute)?.value()
 	public lazy var sha1Hash: Data?						= (self.attributes[.sha1Hash] as? Attribute)?.value()
+	public lazy var originalPurchaseDate: Date?			= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
 	public lazy var originalApplicationVersion: String?	= (self.attributes[.originalApplicationVersion] as? Attribute)?.value()
 	public lazy var creationDate: Date?					= (self.attributes[.creationDate] as? Attribute)?.value()
 	public lazy var expirationDate: Date?				= (self.attributes[.expirationDate] as? Attribute)?.value()
@@ -133,11 +150,13 @@ public class Receipt: Encodable {
 	}()
 
 	private enum CodingKeys: Int, CodingKey {
+		case receiptType = 0
 		case bundleID = 2
 		case applicationVersion = 3
 		case opaqueValue = 4
 		case sha1Hash = 5
 		case inAppPurchases = 17
+		case originalPurchaseDate = 18
 		case originalApplicationVersion = 19
 		case creationDate = 12
 		case expirationDate = 21
@@ -170,10 +189,12 @@ public class Receipt: Encodable {
 	
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
+		try container.encodeIfPresent(receiptType, forKey: .receiptType)
 		try container.encodeIfPresent(bundleID, forKey: .bundleID)
 		try container.encodeIfPresent(applicationVersion, forKey: .applicationVersion)
 		try container.encodeIfPresent(opaqueValue, forKey: .opaqueValue)
 		try container.encodeIfPresent(sha1Hash, forKey: .sha1Hash)
+		try container.encodeIfPresent(originalPurchaseDate, forKey: .originalPurchaseDate)
 		try container.encodeIfPresent(originalApplicationVersion, forKey: .originalApplicationVersion)
 		try container.encodeIfPresent(creationDate, forKey: .creationDate)
 		try container.encodeIfPresent(expirationDate, forKey: .expirationDate)
@@ -314,7 +335,7 @@ public class Receipt: Encodable {
 
 
 extension UnsafeMutablePointer where Pointee == Payload {
-	var attributes: [Int: Any] {
+	/*var attributes: [Int: Any] {
 		let pairs = (0..<Int(pointee.list.count)).flatMap {pointee.list.array[$0]}.flatMap{ i -> (Int, Any)? in
 			return i.pointee.type == V_ASN1_SET ? (i.pointee.type, [i]) : (i.pointee.type, i)
 		}
@@ -323,12 +344,28 @@ extension UnsafeMutablePointer where Pointee == Payload {
 			guard let a = first as? [Any], let b = last as? [Any] else {return [first, last]}
 			return Array([a, b].joined())
 		}
-	}
+	}*/
 	
 	
 	func attr<Key>(keyedBy: Key.Type) -> [Key: Any] where Key: CodingKey {
 		let pairs = (0..<Int(pointee.list.count)).flatMap {pointee.list.array[$0]}.flatMap{ i -> (Key, Any)? in
-			guard let key = Key(intValue: i.pointee.type) else {return nil}
+			guard let key = Key(intValue: i.pointee.type) else {
+				/*let s: String
+				switch i.type.0 {
+				case V_ASN1_IA5STRING, V_ASN1_UTF8STRING:
+					let v: String? = i.value()
+					s = v ?? ""
+				case V_ASN1_INTEGER:
+					let v: Int? = i.value()
+					s = "\(v ?? 0)"
+				default:
+					let d: Data? = i.value()
+					s = d?.base64EncodedString() ?? ""
+				}
+				print("\(i.pointee.type) : \(s)")*/
+				return nil
+				
+			}
 			return i.type.0 == V_ASN1_SET ? (key, [i]) : (key, i)
 		}
 		
@@ -413,5 +450,12 @@ extension UnsafeMutablePointer where Pointee == ReceiptAttribute {
 		guard let s: String = value() else {return nil}
 		return dateFormatter.date(from: s)
 	}
+	
+	func value<T>() -> T? where T: RawRepresentable, T.RawValue == Int {
+		guard let value: T.RawValue = value() else {return nil}
+		return T(rawValue: value)
+	}
 }
+
+
 
