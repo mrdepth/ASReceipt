@@ -58,11 +58,6 @@ public enum ReceiptFetchResult {
 	case failure(Error)
 }
 
-protocol Enum {
-	associatedtype RawValue
-	init?(rawValue: RawValue)
-}
-
 public class Receipt: Encodable {
 	
 	public enum InAppType: Int, Codable {
@@ -70,8 +65,23 @@ public class Receipt: Encodable {
 		case consumable = 1
 		case nonRenewingSubscription = 2
 		case autoRenewableSubscription = 3
+		
+		public func encode(to encoder: Encoder) throws {
+			var container = encoder.singleValueContainer()
+			try container.encode("\(self)")
+		}
 	}
-	
+
+	public enum ReceiptType: String, Codable {
+		case productionSandbox = "ProductionSandbox"
+		case production = "Production"
+		
+		public func encode(to encoder: Encoder) throws {
+			var container = encoder.singleValueContainer()
+			try container.encode("\(self)")
+		}
+	}
+
 	
 	public class Purchase: Encodable {
 		private var attributes: [CodingKeys: Any]
@@ -133,7 +143,7 @@ public class Receipt: Encodable {
 	private var pkcs7: UnsafeMutablePointer<PKCS7>
 	private var attributes: [CodingKeys: Any]
 	
-	public lazy var receiptType: String? 				= (self.attributes[.receiptType] as? Attribute)?.value() ?? ""
+	public lazy var receiptType: ReceiptType?			= (self.attributes[.receiptType] as? Attribute)?.value()
 	public lazy var bundleID: String 					= (self.attributes[.bundleID] as? Attribute)?.value() ?? ""
 	public lazy var applicationVersion: String			= (self.attributes[.applicationVersion] as? Attribute)?.value() ?? ""
 	public lazy var opaqueValue: Data?					= (self.attributes[.opaqueValue] as? Attribute)?.value()
@@ -335,37 +345,10 @@ public class Receipt: Encodable {
 
 
 extension UnsafeMutablePointer where Pointee == Payload {
-	/*var attributes: [Int: Any] {
-		let pairs = (0..<Int(pointee.list.count)).flatMap {pointee.list.array[$0]}.flatMap{ i -> (Int, Any)? in
-			return i.pointee.type == V_ASN1_SET ? (i.pointee.type, [i]) : (i.pointee.type, i)
-		}
-		
-		return Dictionary(pairs) { (first, last) -> [Any] in
-			guard let a = first as? [Any], let b = last as? [Any] else {return [first, last]}
-			return Array([a, b].joined())
-		}
-	}*/
-	
 	
 	func attr<Key>(keyedBy: Key.Type) -> [Key: Any] where Key: CodingKey {
 		let pairs = (0..<Int(pointee.list.count)).flatMap {pointee.list.array[$0]}.flatMap{ i -> (Key, Any)? in
-			guard let key = Key(intValue: i.pointee.type) else {
-				/*let s: String
-				switch i.type.0 {
-				case V_ASN1_IA5STRING, V_ASN1_UTF8STRING:
-					let v: String? = i.value()
-					s = v ?? ""
-				case V_ASN1_INTEGER:
-					let v: Int? = i.value()
-					s = "\(v ?? 0)"
-				default:
-					let d: Data? = i.value()
-					s = d?.base64EncodedString() ?? ""
-				}
-				print("\(i.pointee.type) : \(s)")*/
-				return nil
-				
-			}
+			guard let key = Key(intValue: i.pointee.type) else { return nil }
 			return i.type.0 == V_ASN1_SET ? (key, [i]) : (key, i)
 		}
 		
@@ -455,6 +438,12 @@ extension UnsafeMutablePointer where Pointee == ReceiptAttribute {
 		guard let value: T.RawValue = value() else {return nil}
 		return T(rawValue: value)
 	}
+	
+	func value<T>() -> T? where T: RawRepresentable, T.RawValue == String {
+		guard let value: T.RawValue = value() else {return nil}
+		return T(rawValue: value)
+	}
+
 }
 
 

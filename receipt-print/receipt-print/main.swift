@@ -9,12 +9,11 @@
 import Foundation
 import ASReceipt
 
-
 if CommandLine.arguments.count == 2 {
 	enum ParseError: Error {
 		case json
 	}
-
+	
 	do {
 		let data = try Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1]))
 
