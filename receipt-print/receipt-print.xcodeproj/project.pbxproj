@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		124BD3AD2017199400816946 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124BD3AC2017199400816946 /* main.swift */; };
 		124BD44F20171E8C00816946 /* ASReceipt.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 124BD45020171E8C00816946 /* ASReceipt.framework */; };
+		12A2E45F202C4CA700ADF0D6 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124BD3AC2017199400816946 /* main.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -108,6 +108,7 @@
 				TargetAttributes = {
 					124BD3A82017199400816946 = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 0920;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -134,7 +135,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				124BD3AD2017199400816946 /* main.swift in Sources */,
+				12A2E45F202C4CA700ADF0D6 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,11 +251,14 @@
 		124BD3B12017199400816946 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YB4RLQ4M9A;
 				HEADER_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/include;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -262,9 +266,11 @@
 		124BD3B22017199400816946 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YB4RLQ4M9A;
 				HEADER_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/include;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;

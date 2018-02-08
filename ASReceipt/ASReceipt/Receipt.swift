@@ -58,9 +58,12 @@ public enum ReceiptFetchResult {
 	case failure(Error)
 }
 
-public class Receipt: Encodable {
+@objc(ASReceipt)
+public class Receipt: NSObject, Encodable {
 	
+	@objc(ASInAppType)
 	public enum InAppType: Int, Codable {
+		case unknown = -1
 		case nonConsumable = 0
 		case consumable = 1
 		case nonRenewingSubscription = 2
@@ -68,7 +71,19 @@ public class Receipt: Encodable {
 		
 		public func encode(to encoder: Encoder) throws {
 			var container = encoder.singleValueContainer()
-			try container.encode("\(self)")
+			switch self {
+			case .unknown:
+				try container.encode("unknown")
+			case .nonConsumable:
+				try container.encode("nonConsumable")
+			case .consumable:
+				try container.encode("consumable")
+			case .nonRenewingSubscription:
+				try container.encode("nonRenewingSubscription")
+			case .autoRenewableSubscription:
+				try container.encode("autoRenewableSubscription")
+			}
+//			try container.encode("\(self)")
 		}
 	}
 
@@ -83,21 +98,22 @@ public class Receipt: Encodable {
 	}
 
 	
-	public class Purchase: Encodable {
+	@objc(ASPurchase)
+	public class Purchase: NSObject, Encodable {
 		private var attributes: [CodingKeys: Any]
 		
-		public lazy var quantity: Int? 					= (self.attributes[.quantity] as? Attribute)?.value()
-		public lazy var productID: String				= (self.attributes[.productID] as? Attribute)?.value() ?? ""
-		public lazy var transactionID: String			= (self.attributes[.transactionID] as? Attribute)?.value() ?? ""
-		public lazy var originalTransactionID: String?	= (self.attributes[.originalTransactionID] as? Attribute)?.value()
-		public lazy var purchaseDate: Date				= (self.attributes[.purchaseDate] as? Attribute)?.value() ?? .distantPast
-		public lazy var originalPurchaseDate: Date?		= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
-		public lazy var inAppType: InAppType?			= (self.attributes[.inAppType] as? Attribute)?.value()
-		public lazy var expiresDate: Date?				= (self.attributes[.expiresDate] as? Attribute)?.value()
-		public lazy var isInIntroOfferPeriod: Bool?		= (self.attributes[.isInIntroOfferPeriod] as? Attribute)?.value()
-		public lazy var isTrialPeriod: Bool?			= (self.attributes[.isTrialPeriod] as? Attribute)?.value()
-		public lazy var cancellationDate: Date?			= (self.attributes[.cancellationDate] as? Attribute)?.value()
-		public lazy var webOrderLineItemID: Int?		= (self.attributes[.webOrderLineItemID] as? Attribute)?.value()
+		@objc public lazy var quantity: Int 					= (self.attributes[.quantity] as? Attribute)?.value() ?? 0
+		@objc public lazy var productID: String				= (self.attributes[.productID] as? Attribute)?.value() ?? ""
+		@objc public lazy var transactionID: String			= (self.attributes[.transactionID] as? Attribute)?.value() ?? ""
+		@objc public lazy var originalTransactionID: String?	= (self.attributes[.originalTransactionID] as? Attribute)?.value()
+		@objc public lazy var purchaseDate: Date				= (self.attributes[.purchaseDate] as? Attribute)?.value() ?? .distantPast
+		@objc public lazy var originalPurchaseDate: Date?		= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
+		@objc public lazy var inAppType: InAppType			= (self.attributes[.inAppType] as? Attribute)?.value() ?? .unknown
+		@objc public lazy var expiresDate: Date?				= (self.attributes[.expiresDate] as? Attribute)?.value()
+		@objc public lazy var isInIntroOfferPeriod: Bool		= (self.attributes[.isInIntroOfferPeriod] as? Attribute)?.value() ?? false
+		@objc public lazy var isTrialPeriod: Bool			= (self.attributes[.isTrialPeriod] as? Attribute)?.value() ?? false
+		@objc public lazy var cancellationDate: Date?			= (self.attributes[.cancellationDate] as? Attribute)?.value()
+		@objc public lazy var webOrderLineItemID: Int		= (self.attributes[.webOrderLineItemID] as? Attribute)?.value() ?? 0
 		
 		fileprivate enum CodingKeys: Int, CodingKey {
 			case quantity = 1701
@@ -118,6 +134,7 @@ public class Receipt: Encodable {
 			self.attributes = attributes
 		}
 		
+		@objc
 		public var isExpired: Bool {
 			guard let date = expiresDate else {return true}
 			return date < Date()
@@ -144,15 +161,15 @@ public class Receipt: Encodable {
 	private var attributes: [CodingKeys: Any]
 	
 	public lazy var receiptType: ReceiptType?			= (self.attributes[.receiptType] as? Attribute)?.value()
-	public lazy var bundleID: String 					= (self.attributes[.bundleID] as? Attribute)?.value() ?? ""
-	public lazy var applicationVersion: String			= (self.attributes[.applicationVersion] as? Attribute)?.value() ?? ""
-	public lazy var opaqueValue: Data?					= (self.attributes[.opaqueValue] as? Attribute)?.value()
-	public lazy var sha1Hash: Data?						= (self.attributes[.sha1Hash] as? Attribute)?.value()
-	public lazy var originalPurchaseDate: Date?			= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
-	public lazy var originalApplicationVersion: String?	= (self.attributes[.originalApplicationVersion] as? Attribute)?.value()
-	public lazy var creationDate: Date?					= (self.attributes[.creationDate] as? Attribute)?.value()
-	public lazy var expirationDate: Date?				= (self.attributes[.expirationDate] as? Attribute)?.value()
-	public lazy var inAppPurchases: [Purchase]? = {
+	@objc public lazy var bundleID: String 					= (self.attributes[.bundleID] as? Attribute)?.value() ?? ""
+	@objc public lazy var applicationVersion: String			= (self.attributes[.applicationVersion] as? Attribute)?.value() ?? ""
+	@objc public lazy var opaqueValue: Data?					= (self.attributes[.opaqueValue] as? Attribute)?.value()
+	@objc public lazy var sha1Hash: Data?						= (self.attributes[.sha1Hash] as? Attribute)?.value()
+	@objc public lazy var originalPurchaseDate: Date?			= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
+	@objc public lazy var originalApplicationVersion: String?	= (self.attributes[.originalApplicationVersion] as? Attribute)?.value()
+	@objc public lazy var creationDate: Date?					= (self.attributes[.creationDate] as? Attribute)?.value()
+	@objc public lazy var expirationDate: Date?				= (self.attributes[.expirationDate] as? Attribute)?.value()
+	@objc public lazy var inAppPurchases: [Purchase]? = {
 		(self.attributes[.inAppPurchases] as? [Attribute])?.flatMap { i -> [Purchase.CodingKeys: Any]? in
 			guard let payload: UnsafeMutablePointer<Payload> = i.value() else {return nil}
 			return payload.attr(keyedBy: Purchase.CodingKeys.self)
@@ -172,6 +189,7 @@ public class Receipt: Encodable {
 		case expirationDate = 21
 	}
 	
+	@objc
 	public init(data: Data) throws {
 		let bio = BIO_new(BIO_s_mem())
 		defer {BIO_free(bio)}
@@ -211,8 +229,8 @@ public class Receipt: Encodable {
 		try container.encodeIfPresent(inAppPurchases?.sorted {$0.purchaseDate < $1.purchaseDate}, forKey: .inAppPurchases)
 	}
 	
-	@discardableResult
-	public func verify(uuid: UUID) throws -> Bool {
+	@objc
+	public func verify(uuid: UUID) throws {
 		guard let bundleID: Data = (attributes[.bundleID] as? Attribute)?.value(),
 			let opaqueValue: Data = (attributes[.opaqueValue] as? Attribute)?.value(),
 			let hash: Data = (attributes[.sha1Hash] as? Attribute)?.value() else {throw ReceiptError.receiptMalformed}
@@ -241,11 +259,10 @@ public class Receipt: Encodable {
 			EVP_DigestFinal(&ctx, ptr, nil)
 		}
 		guard digest == hash else {throw ReceiptError.validationFailed(NSLocalizedString("Hash mismatch", comment: ""))}
-		return true
 	}
 	
-	@discardableResult
-	public func verify(rootCertData: Data) throws -> Bool {
+	@objc
+	public func verify(rootCertData: Data) throws {
 		let bio = BIO_new(BIO_s_mem())
 		defer {BIO_free(bio)}
 		guard rootCertData.withUnsafeBytes ({ ptr in
@@ -271,15 +288,16 @@ public class Receipt: Encodable {
 			}() ?? NSLocalizedString("Unknown error", comment: "")
 			throw ReceiptError.validationFailed(string)
 		}
-		return true
 	}
 	
+	@objc
 	public static var local: Receipt? {
 		guard let url = Bundle.main.appStoreReceiptURL else {return nil}
 		guard let data = try? Data(contentsOf: url) else {return nil}
 		return try? Receipt(data: data)
 	}
 
+	@objc
 	public func purchase(transactionID: String) -> Purchase? {
 		return inAppPurchases?.first(where: {$0.transactionID == transactionID})
 	}

@@ -9,6 +9,7 @@
 import Foundation
 import ASReceipt
 
+
 if CommandLine.arguments.count == 2 {
 	enum ParseError: Error {
 		case json
@@ -39,3 +40,4 @@ if CommandLine.arguments.count == 2 {
 else {
 	print("usage: receipt-print source_file")
 }
+
