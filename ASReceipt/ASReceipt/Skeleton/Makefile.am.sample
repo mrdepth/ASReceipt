@@ -84,5 +84,5 @@ clean:
 regen: regenerate-from-asn1-source
 
 regenerate-from-asn1-source:
-	asn1c -fnative-types ../payload
+	asn1c -fnative-types Payload
 

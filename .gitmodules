@@ -1,0 +1,3 @@
+[submodule "ASReceipt/ThirdParty/asn1c"]
+	path = ASReceipt/ThirdParty/asn1c
+	url = https://github.com/vlm/asn1c.git
