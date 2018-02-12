@@ -103,17 +103,17 @@ public class Receipt: NSObject, Encodable {
 		private var attributes: [CodingKeys: Any]
 		
 		@objc public lazy var quantity: Int 					= (self.attributes[.quantity] as? Attribute)?.value() ?? 0
-		@objc public lazy var productID: String				= (self.attributes[.productID] as? Attribute)?.value() ?? ""
-		@objc public lazy var transactionID: String			= (self.attributes[.transactionID] as? Attribute)?.value() ?? ""
+		@objc public lazy var productID: String					= (self.attributes[.productID] as? Attribute)?.value() ?? ""
+		@objc public lazy var transactionID: String				= (self.attributes[.transactionID] as? Attribute)?.value() ?? ""
 		@objc public lazy var originalTransactionID: String?	= (self.attributes[.originalTransactionID] as? Attribute)?.value()
 		@objc public lazy var purchaseDate: Date				= (self.attributes[.purchaseDate] as? Attribute)?.value() ?? .distantPast
 		@objc public lazy var originalPurchaseDate: Date?		= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
-		@objc public lazy var inAppType: InAppType			= (self.attributes[.inAppType] as? Attribute)?.value() ?? .unknown
+		@objc public lazy var inAppType: InAppType				= (self.attributes[.inAppType] as? Attribute)?.value() ?? .unknown
 		@objc public lazy var expiresDate: Date?				= (self.attributes[.expiresDate] as? Attribute)?.value()
 		@objc public lazy var isInIntroOfferPeriod: Bool		= (self.attributes[.isInIntroOfferPeriod] as? Attribute)?.value() ?? false
-		@objc public lazy var isTrialPeriod: Bool			= (self.attributes[.isTrialPeriod] as? Attribute)?.value() ?? false
+		@objc public lazy var isTrialPeriod: Bool				= (self.attributes[.isTrialPeriod] as? Attribute)?.value() ?? false
 		@objc public lazy var cancellationDate: Date?			= (self.attributes[.cancellationDate] as? Attribute)?.value()
-		@objc public lazy var webOrderLineItemID: Int		= (self.attributes[.webOrderLineItemID] as? Attribute)?.value() ?? 0
+		@objc public lazy var webOrderLineItemID: Int			= (self.attributes[.webOrderLineItemID] as? Attribute)?.value() ?? 0
 		
 		fileprivate enum CodingKeys: Int, CodingKey {
 			case quantity = 1701
@@ -142,7 +142,9 @@ public class Receipt: NSObject, Encodable {
 		
 		public func encode(to encoder: Encoder) throws {
 			var container = encoder.container(keyedBy: CodingKeys.self)
-			try container.encodeIfPresent(quantity, forKey: .quantity)
+			if quantity > 0 {
+				try container.encodeIfPresent(quantity, forKey: .quantity)
+			}
 			try container.encodeIfPresent(productID, forKey: .productID)
 			try container.encodeIfPresent(transactionID, forKey: .transactionID)
 			try container.encodeIfPresent(originalTransactionID, forKey: .originalTransactionID)
@@ -153,28 +155,35 @@ public class Receipt: NSObject, Encodable {
 			try container.encodeIfPresent(isInIntroOfferPeriod, forKey: .isInIntroOfferPeriod)
 			try container.encodeIfPresent(isTrialPeriod, forKey: .isTrialPeriod)
 			try container.encodeIfPresent(cancellationDate, forKey: .cancellationDate)
-			try container.encodeIfPresent(webOrderLineItemID, forKey: .webOrderLineItemID)
+			if webOrderLineItemID > 0 {
+				try container.encodeIfPresent(webOrderLineItemID, forKey: .webOrderLineItemID)
+			}
 		}
 	}
 	
 	private var pkcs7: UnsafeMutablePointer<PKCS7>
 	private var attributes: [CodingKeys: Any]
 	
-	public lazy var receiptType: ReceiptType?			= (self.attributes[.receiptType] as? Attribute)?.value()
-	@objc public lazy var bundleID: String 					= (self.attributes[.bundleID] as? Attribute)?.value() ?? ""
+	public lazy var receiptType: ReceiptType?					= (self.attributes[.receiptType] as? Attribute)?.value()
+	@objc public lazy var bundleID: String 						= (self.attributes[.bundleID] as? Attribute)?.value() ?? ""
 	@objc public lazy var applicationVersion: String			= (self.attributes[.applicationVersion] as? Attribute)?.value() ?? ""
 	@objc public lazy var opaqueValue: Data?					= (self.attributes[.opaqueValue] as? Attribute)?.value()
 	@objc public lazy var sha1Hash: Data?						= (self.attributes[.sha1Hash] as? Attribute)?.value()
 	@objc public lazy var originalPurchaseDate: Date?			= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
 	@objc public lazy var originalApplicationVersion: String?	= (self.attributes[.originalApplicationVersion] as? Attribute)?.value()
 	@objc public lazy var creationDate: Date?					= (self.attributes[.creationDate] as? Attribute)?.value()
-	@objc public lazy var expirationDate: Date?				= (self.attributes[.expirationDate] as? Attribute)?.value()
+	@objc public lazy var expirationDate: Date?					= (self.attributes[.expirationDate] as? Attribute)?.value()
 	@objc public lazy var inAppPurchases: [Purchase]? = {
 		(self.attributes[.inAppPurchases] as? [Attribute])?.flatMap { i -> [Purchase.CodingKeys: Any]? in
 			guard let payload: UnsafeMutablePointer<Payload> = i.value() else {return nil}
 			return payload.attr(keyedBy: Purchase.CodingKeys.self)
 			}.map { Purchase(attributes: $0)}
 	}()
+	@objc public lazy var appItemID: Int 					= (self.attributes[.appItemID] as? Attribute)?.value() ?? 0
+	@objc public lazy var downloadID: Int 					= (self.attributes[.downloadID] as? Attribute)?.value() ?? 0
+	@objc public lazy var versionExternalIdentifier: Int 	= (self.attributes[.versionExternalIdentifier] as? Attribute)?.value() ?? 0
+	@objc public lazy var receiptCreationDate: Date?		= (self.attributes[.receiptCreationDate] as? Attribute)?.value()
+
 
 	private enum CodingKeys: Int, CodingKey {
 		case receiptType = 0
@@ -187,6 +196,11 @@ public class Receipt: NSObject, Encodable {
 		case originalApplicationVersion = 19
 		case creationDate = 12
 		case expirationDate = 21
+		case appItemID = 1
+		case downloadID = 15
+		case versionExternalIdentifier = 16
+		case receiptCreationDate = 8
+
 	}
 	
 	@objc
@@ -227,6 +241,17 @@ public class Receipt: NSObject, Encodable {
 		try container.encodeIfPresent(creationDate, forKey: .creationDate)
 		try container.encodeIfPresent(expirationDate, forKey: .expirationDate)
 		try container.encodeIfPresent(inAppPurchases?.sorted {$0.purchaseDate < $1.purchaseDate}, forKey: .inAppPurchases)
+		
+		if appItemID > 0 {
+			try container.encodeIfPresent(appItemID, forKey: .appItemID)
+		}
+		if downloadID > 0 {
+			try container.encodeIfPresent(downloadID, forKey: .downloadID)
+		}
+		if versionExternalIdentifier > 0 {
+			try container.encodeIfPresent(versionExternalIdentifier, forKey: .versionExternalIdentifier)
+		}
+		try container.encodeIfPresent(receiptCreationDate, forKey: .receiptCreationDate)
 	}
 	
 	@objc
@@ -366,7 +391,7 @@ extension UnsafeMutablePointer where Pointee == Payload {
 	
 	func attr<Key>(keyedBy: Key.Type) -> [Key: Any] where Key: CodingKey {
 		let pairs = (0..<Int(pointee.list.count)).flatMap {pointee.list.array[$0]}.flatMap{ i -> (Key, Any)? in
-			guard let key = Key(intValue: i.pointee.type) else { return nil }
+			guard let key = Key(intValue: i.pointee.type) else {return nil}
 			return i.type.0 == V_ASN1_SET ? (key, [i]) : (key, i)
 		}
 		
