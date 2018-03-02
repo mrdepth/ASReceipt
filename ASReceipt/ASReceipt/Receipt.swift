@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 import StoreKit
 #endif
-import OpenSSL
+import openssl
 import Payload
 
 #if os(iOS)
