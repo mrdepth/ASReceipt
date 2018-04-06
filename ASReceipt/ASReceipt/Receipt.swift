@@ -174,7 +174,7 @@ public class Receipt: NSObject, Encodable {
 	@objc public lazy var creationDate: Date?					= (self.attributes[.creationDate] as? Attribute)?.value()
 	@objc public lazy var expirationDate: Date?					= (self.attributes[.expirationDate] as? Attribute)?.value()
 	@objc public lazy var inAppPurchases: [Purchase]? = {
-		(self.attributes[.inAppPurchases] as? [Attribute])?.flatMap { i -> [Purchase.CodingKeys: Any]? in
+		(self.attributes[.inAppPurchases] as? [Attribute])?.compactMap { i -> [Purchase.CodingKeys: Any]? in
 			guard let payload: UnsafeMutablePointer<Payload> = i.value() else {return nil}
 			return payload.attr(keyedBy: Purchase.CodingKeys.self)
 			}.map { Purchase(attributes: $0)}
@@ -390,7 +390,7 @@ public class Receipt: NSObject, Encodable {
 extension UnsafeMutablePointer where Pointee == Payload {
 	
 	func attr<Key>(keyedBy: Key.Type) -> [Key: Any] where Key: CodingKey {
-		let pairs = (0..<Int(pointee.list.count)).flatMap {pointee.list.array[$0]}.flatMap{ i -> (Key, Any)? in
+		let pairs = (0..<Int(pointee.list.count)).compactMap {pointee.list.array[$0]}.compactMap{ i -> (Key, Any)? in
 			guard let key = Key(intValue: i.pointee.type) else {return nil}
 			return i.type.0 == V_ASN1_SET ? (key, [i]) : (key, i)
 		}
