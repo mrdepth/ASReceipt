@@ -858,7 +858,7 @@
 				TargetAttributes = {
 					124B28F420162FBC0020C059 = {
 						CreatedOnToolsVersion = 9.2;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = "";
 						ProvisioningStyle = Automatic;
 					};
 					124BD3B420171D0F00816946 = {
@@ -1133,11 +1133,10 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.shimanski.Receipt;
 				PRODUCT_NAME = ASReceipt;
-				SDKROOT = iphoneos11.2;
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/ASReceipt/Skeleton";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1164,10 +1163,9 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.shimanski.Receipt;
 				PRODUCT_NAME = ASReceipt;
-				SDKROOT = iphoneos11.2;
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/ASReceipt/Skeleton";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1190,11 +1188,11 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.shimanski.Receipt;
 				PRODUCT_NAME = ASReceipt;
-				SDKROOT = macosx10.13;
+				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/ASReceipt/Skeleton $(PROJECT_DIR)/ThirdParty/openssl";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				SYSTEM_HEADER_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/include;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1218,10 +1216,10 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.shimanski.Receipt;
 				PRODUCT_NAME = ASReceipt;
-				SDKROOT = macosx10.13;
+				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/ASReceipt/Skeleton $(PROJECT_DIR)/ThirdParty/openssl";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				SYSTEM_HEADER_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/include;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
