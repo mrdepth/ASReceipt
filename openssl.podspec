@@ -1,6 +1,7 @@
 Pod::Spec.new do |s|
   s.name = "openssl"
   s.version      = "1.0.0"
+  s.summary      = "App Store Receipt Parser / OpenSSL"
   s.homepage     = "https://github.com/mrdepth/ASReceipt"
   s.license      = "MIT"
   s.author       = { "Shimanski Artem" => "shimanski.artem@gmail.com" }
