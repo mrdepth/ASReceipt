@@ -6,8 +6,11 @@ Pod::Spec.new do |s|
   s.license      = "MIT"
   s.author       = { "Shimanski Artem" => "shimanski.artem@gmail.com" }
   s.source       = { :git => "https://github.com/mrdepth/ASReceipt.git", :branch => "feature/swift_4.2" }
-  s.source_files = "Source/*.swift"
+  s.source_files = "Source/*.swift", "Source/Skeleton/*.*"
+  s.private_header_files = "Source/Skeleton/*.h"
   s.platform     = :ios
   s.ios.deployment_target = "9.0"
   s.swift_version = "4.2"
+  s.dependency "openssl", "1.0.0"
+  s.xcconfig = {'SWIFT_INCLUDE_PATHS' => '"$(PODS_TARGET_SRCROOT)/Source/Skeleton"'}
 end
