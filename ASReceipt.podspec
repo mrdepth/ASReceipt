@@ -10,5 +10,4 @@ Pod::Spec.new do |s|
   s.platform     = :ios
   s.ios.deployment_target = "9.0"
   s.swift_version = "4.2"
-  s.header_dir = "Source/ThirdParty/OpenSSL/include/openssl"
 end
