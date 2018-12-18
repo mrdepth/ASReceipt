@@ -9,7 +9,6 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/mrdepth/ASReceipt.git", :branch => "feature/swift_4.2" }
   s.platform = :ios
   s.ios.deployment_target = "9.0"
-#s.header_dir = "openssl"
   s.source_files = "Source/ThirdParty/OpenSSL/include/openssl/*.h", "Source/ThirdParty/OpenSSL/openssl.{h,m}"
   s.public_header_files = "Source/ThirdParty/OpenSSL/include/openssl/*.h", "Source/ThirdParty/OpenSSL/openssl.h"
   s.vendored_libraries = "Source/ThirdParty/OpenSSL/lib/libcrypto.a", "Source/ThirdParty/OpenSSL/lib/libssl.a"
