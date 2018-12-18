@@ -5,6 +5,6 @@
       location = "group:receipt-print/receipt-print.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:ASReceipt/ASReceipt.xcodeproj">
+      location = "group:ASReceipt.xcodeproj">
    </FileRef>
 </Workspace>
