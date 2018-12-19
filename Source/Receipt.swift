@@ -58,11 +58,9 @@ public enum ReceiptFetchResult {
 	case failure(Error)
 }
 
-@objc(ASReceipt)
-public class Receipt: NSObject, Encodable {
+public class Receipt: Encodable {
 	
-	@objc(ASInAppType)
-	public enum InAppType: Int, Codable {
+	public enum InAppType: Int, Encodable {
 		case unknown = -1
 		case nonConsumable = 0
 		case consumable = 1
@@ -83,37 +81,29 @@ public class Receipt: NSObject, Encodable {
 			case .autoRenewableSubscription:
 				try container.encode("autoRenewableSubscription")
 			}
-//			try container.encode("\(self)")
 		}
 	}
 
 	public enum ReceiptType: String, Codable {
 		case productionSandbox = "ProductionSandbox"
 		case production = "Production"
-		
-		public func encode(to encoder: Encoder) throws {
-			var container = encoder.singleValueContainer()
-			try container.encode("\(self)")
-		}
 	}
 
 	
-	@objc(ASPurchase)
-	public class Purchase: NSObject, Encodable {
-		private var attributes: [CodingKeys: Any]
-		
-		@objc public lazy var quantity: Int 					= (self.attributes[.quantity] as? Attribute)?.value() ?? 0
-		@objc public lazy var productID: String					= (self.attributes[.productID] as? Attribute)?.value() ?? ""
-		@objc public lazy var transactionID: String				= (self.attributes[.transactionID] as? Attribute)?.value() ?? ""
-		@objc public lazy var originalTransactionID: String?	= (self.attributes[.originalTransactionID] as? Attribute)?.value()
-		@objc public lazy var purchaseDate: Date				= (self.attributes[.purchaseDate] as? Attribute)?.value() ?? .distantPast
-		@objc public lazy var originalPurchaseDate: Date?		= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
-		@objc public lazy var inAppType: InAppType				= (self.attributes[.inAppType] as? Attribute)?.value() ?? .unknown
-		@objc public lazy var expiresDate: Date?				= (self.attributes[.expiresDate] as? Attribute)?.value()
-		@objc public lazy var isInIntroOfferPeriod: Bool		= (self.attributes[.isInIntroOfferPeriod] as? Attribute)?.value() ?? false
-		@objc public lazy var isTrialPeriod: Bool				= (self.attributes[.isTrialPeriod] as? Attribute)?.value() ?? false
-		@objc public lazy var cancellationDate: Date?			= (self.attributes[.cancellationDate] as? Attribute)?.value()
-		@objc public lazy var webOrderLineItemID: Int			= (self.attributes[.webOrderLineItemID] as? Attribute)?.value() ?? 0
+	public struct Purchase: Encodable {
+
+		public let quantity: Int?
+		public let productID: String?
+		public let transactionID: String?
+		public let originalTransactionID: String?
+		public let purchaseDate: Date?
+		public let originalPurchaseDate: Date?
+		public let inAppType: InAppType?
+		public let expiresDate: Date?
+		public let isInIntroOfferPeriod: Bool?
+		public let isTrialPeriod: Bool?
+		public let cancellationDate: Date?
+		public let webOrderLineItemID: Int?
 		
 		fileprivate enum CodingKeys: Int, CodingKey {
 			case quantity = 1701
@@ -131,33 +121,28 @@ public class Receipt: NSObject, Encodable {
 		}
 		
 		fileprivate init(attributes: [CodingKeys: Any]) {
-			self.attributes = attributes
+			quantity 				= (attributes[.quantity] as? Attribute)?.value()
+			productID 				= (attributes[.productID] as? Attribute)?.value()
+			transactionID 			= (attributes[.transactionID] as? Attribute)?.value()
+			originalTransactionID 	= (attributes[.originalTransactionID] as? Attribute)?.value()
+			purchaseDate 			= (attributes[.purchaseDate] as? Attribute)?.value()
+			originalPurchaseDate 	= (attributes[.originalPurchaseDate] as? Attribute)?.value()
+			inAppType 				= (attributes[.inAppType] as? Attribute)?.value()
+			expiresDate 			= (attributes[.expiresDate] as? Attribute)?.value()
+			isInIntroOfferPeriod 	= (attributes[.isInIntroOfferPeriod] as? Attribute)?.value()
+			isTrialPeriod 			= (attributes[.isTrialPeriod] as? Attribute)?.value()
+			cancellationDate 		= (attributes[.cancellationDate] as? Attribute)?.value()
+			webOrderLineItemID 		= (attributes[.webOrderLineItemID] as? Attribute)?.value()
 		}
 		
-		@objc
 		public var isExpired: Bool {
 			guard let date = expiresDate else {return true}
-			return date < Date()
+			return date <= Date()
 		}
 		
-		public func encode(to encoder: Encoder) throws {
-			var container = encoder.container(keyedBy: CodingKeys.self)
-			if quantity > 0 {
-				try container.encodeIfPresent(quantity, forKey: .quantity)
-			}
-			try container.encodeIfPresent(productID, forKey: .productID)
-			try container.encodeIfPresent(transactionID, forKey: .transactionID)
-			try container.encodeIfPresent(originalTransactionID, forKey: .originalTransactionID)
-			try container.encodeIfPresent(purchaseDate, forKey: .purchaseDate)
-			try container.encodeIfPresent(originalPurchaseDate, forKey: .originalPurchaseDate)
-			try container.encodeIfPresent(inAppType, forKey: .inAppType)
-			try container.encodeIfPresent(expiresDate, forKey: .expiresDate)
-			try container.encodeIfPresent(isInIntroOfferPeriod, forKey: .isInIntroOfferPeriod)
-			try container.encodeIfPresent(isTrialPeriod, forKey: .isTrialPeriod)
-			try container.encodeIfPresent(cancellationDate, forKey: .cancellationDate)
-			if webOrderLineItemID > 0 {
-				try container.encodeIfPresent(webOrderLineItemID, forKey: .webOrderLineItemID)
-			}
+		public var isCancelled: Bool {
+			guard let cancellationDate = cancellationDate else {return false}
+			return cancellationDate <= Date()
 		}
 	}
 	
@@ -165,24 +150,24 @@ public class Receipt: NSObject, Encodable {
 	private var attributes: [CodingKeys: Any]
 	
 	public lazy var receiptType: ReceiptType?					= (self.attributes[.receiptType] as? Attribute)?.value()
-	@objc public lazy var bundleID: String 						= (self.attributes[.bundleID] as? Attribute)?.value() ?? ""
-	@objc public lazy var applicationVersion: String			= (self.attributes[.applicationVersion] as? Attribute)?.value() ?? ""
-	@objc public lazy var opaqueValue: Data?					= (self.attributes[.opaqueValue] as? Attribute)?.value()
-	@objc public lazy var sha1Hash: Data?						= (self.attributes[.sha1Hash] as? Attribute)?.value()
-	@objc public lazy var originalPurchaseDate: Date?			= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
-	@objc public lazy var originalApplicationVersion: String?	= (self.attributes[.originalApplicationVersion] as? Attribute)?.value()
-	@objc public lazy var creationDate: Date?					= (self.attributes[.creationDate] as? Attribute)?.value()
-	@objc public lazy var expirationDate: Date?					= (self.attributes[.expirationDate] as? Attribute)?.value()
-	@objc public lazy var inAppPurchases: [Purchase]? = {
+	public lazy var bundleID: String? 							= (self.attributes[.bundleID] as? Attribute)?.value()
+	public lazy var applicationVersion: String?					= (self.attributes[.applicationVersion] as? Attribute)?.value()
+	public lazy var opaqueValue: Data?							= (self.attributes[.opaqueValue] as? Attribute)?.value()
+	public lazy var sha1Hash: Data?								= (self.attributes[.sha1Hash] as? Attribute)?.value()
+	public lazy var originalPurchaseDate: Date?					= (self.attributes[.originalPurchaseDate] as? Attribute)?.value()
+	public lazy var originalApplicationVersion: String?			= (self.attributes[.originalApplicationVersion] as? Attribute)?.value()
+	public lazy var creationDate: Date?							= (self.attributes[.creationDate] as? Attribute)?.value()
+	public lazy var expirationDate: Date?						= (self.attributes[.expirationDate] as? Attribute)?.value()
+	public lazy var inAppPurchases: [Purchase]? = {
 		(self.attributes[.inAppPurchases] as? [Attribute])?.compactMap { i -> [Purchase.CodingKeys: Any]? in
 			guard let payload: UnsafeMutablePointer<Payload> = i.value() else {return nil}
 			return payload.attr(keyedBy: Purchase.CodingKeys.self)
-			}.map { Purchase(attributes: $0)}
+		}.map { Purchase(attributes: $0)}
 	}()
-	@objc public lazy var appItemID: Int 					= (self.attributes[.appItemID] as? Attribute)?.value() ?? 0
-	@objc public lazy var downloadID: Int 					= (self.attributes[.downloadID] as? Attribute)?.value() ?? 0
-	@objc public lazy var versionExternalIdentifier: Int 	= (self.attributes[.versionExternalIdentifier] as? Attribute)?.value() ?? 0
-	@objc public lazy var receiptCreationDate: Date?		= (self.attributes[.receiptCreationDate] as? Attribute)?.value()
+	public lazy var appItemID: Int? 							= (self.attributes[.appItemID] as? Attribute)?.value()
+	public lazy var downloadID: Int? 							= (self.attributes[.downloadID] as? Attribute)?.value()
+	public lazy var versionExternalIdentifier: Int? 			= (self.attributes[.versionExternalIdentifier] as? Attribute)?.value()
+	public lazy var receiptCreationDate: Date?					= (self.attributes[.receiptCreationDate] as? Attribute)?.value()
 
 
 	private enum CodingKeys: Int, CodingKey {
@@ -203,7 +188,12 @@ public class Receipt: NSObject, Encodable {
 
 	}
 	
-	@objc
+	public convenience init() throws {
+		guard let url = Bundle.main.appStoreReceiptURL else {throw ReceiptError.receiptNotFound}
+		let data = try Data(contentsOf: url)
+		try self.init(data: data)
+	}
+
 	public init(data: Data) throws {
 		let bio = BIO_new(BIO_s_mem())
 		defer {BIO_free(bio)}
@@ -215,13 +205,13 @@ public class Receipt: NSObject, Encodable {
 		guard let pkcs7 = d2i_PKCS7_bio(bio, nil) else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
 		var isInitialized = false
 		defer { if !isInitialized { PKCS7_free(pkcs7) } }
-		self.pkcs7 = pkcs7
 		
 		let payload = pkcs7.pointee.d.sign.pointee.contents.pointee.d.data.pointee
 		var ptr: UnsafeMutableRawPointer? = nil
 		guard asn_DEF_Payload.ber_decoder(nil, &asn_DEF_Payload, &ptr, payload.data, Int(payload.length), 0).code == RC_OK else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
 		guard let pl = ptr?.assumingMemoryBound(to: Payload_t.self) else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
 		attributes = pl.attr(keyedBy: CodingKeys.self)
+		self.pkcs7 = pkcs7
 		isInitialized = true
 	}
 	
@@ -229,32 +219,6 @@ public class Receipt: NSObject, Encodable {
 		PKCS7_free(pkcs7)
 	}
 	
-	public func encode(to encoder: Encoder) throws {
-		var container = encoder.container(keyedBy: CodingKeys.self)
-		try container.encodeIfPresent(receiptType, forKey: .receiptType)
-		try container.encodeIfPresent(bundleID, forKey: .bundleID)
-		try container.encodeIfPresent(applicationVersion, forKey: .applicationVersion)
-		try container.encodeIfPresent(opaqueValue, forKey: .opaqueValue)
-		try container.encodeIfPresent(sha1Hash, forKey: .sha1Hash)
-		try container.encodeIfPresent(originalPurchaseDate, forKey: .originalPurchaseDate)
-		try container.encodeIfPresent(originalApplicationVersion, forKey: .originalApplicationVersion)
-		try container.encodeIfPresent(creationDate, forKey: .creationDate)
-		try container.encodeIfPresent(expirationDate, forKey: .expirationDate)
-		try container.encodeIfPresent(inAppPurchases?.sorted {$0.purchaseDate < $1.purchaseDate}, forKey: .inAppPurchases)
-		
-		if appItemID > 0 {
-			try container.encodeIfPresent(appItemID, forKey: .appItemID)
-		}
-		if downloadID > 0 {
-			try container.encodeIfPresent(downloadID, forKey: .downloadID)
-		}
-		if versionExternalIdentifier > 0 {
-			try container.encodeIfPresent(versionExternalIdentifier, forKey: .versionExternalIdentifier)
-		}
-		try container.encodeIfPresent(receiptCreationDate, forKey: .receiptCreationDate)
-	}
-	
-	@objc
 	public func verify(uuid: UUID) throws {
 		guard let bundleID: Data = (attributes[.bundleID] as? Attribute)?.value(),
 			let opaqueValue: Data = (attributes[.opaqueValue] as? Attribute)?.value(),
@@ -286,7 +250,6 @@ public class Receipt: NSObject, Encodable {
 		guard digest == hash else {throw ReceiptError.validationFailed(NSLocalizedString("Hash mismatch", comment: ""))}
 	}
 	
-	@objc
 	public func verify(rootCertData: Data) throws {
 		let bio = BIO_new(BIO_s_mem())
 		defer {BIO_free(bio)}
@@ -315,55 +278,50 @@ public class Receipt: NSObject, Encodable {
 		}
 	}
 	
-	@objc
-	public static var local: Receipt? {
-		guard let url = Bundle.main.appStoreReceiptURL else {return nil}
-		guard let data = try? Data(contentsOf: url) else {return nil}
-		return try? Receipt(data: data)
-	}
-
-	@objc
 	public func purchase(transactionID: String) -> Purchase? {
 		return inAppPurchases?.first(where: {$0.transactionID == transactionID})
 	}
 	
 	#if os(iOS)
-	public class func fetchValidReceipt(completion: @escaping(ReceiptFetchResult) -> Void) {
+	public class func fetchValidReceipt(refreshIfNeeded refresh: Bool, completion: @escaping(ReceiptFetchResult) -> Void) {
 		var left = 3
 		
 		func fetchReceipt(uuid: UUID) {
 			do {
-				guard let receipt = Receipt.local else {throw ReceiptError.receiptNotFound}
+				let receipt = try Receipt()
 				try receipt.verify(uuid: uuid)
 				completion(.success(receipt))
 			}
 			catch {
-				/*let request = SKReceiptRefreshRequest()
-				var delegate: RequestDelegate?
-				delegate = RequestDelegate { (request, error) in
-					DispatchQueue.main.async {
-						if let error = error {
-							completion(.failure(error))
-						}
-						else {
-							do {
-								guard let receipt = Receipt.local else {throw ReceiptError.receiptNotFound}
-								try receipt.verify(uuid: uuid)
-								completion(.success(receipt))
-							}
-							catch {
+				if refresh {
+					let request = SKReceiptRefreshRequest()
+					var delegate: RequestDelegate?
+					delegate = RequestDelegate { (request, error) in
+						DispatchQueue.main.async {
+							if let error = error {
 								completion(.failure(error))
 							}
+							else {
+								do {
+									let receipt = try Receipt()
+									try receipt.verify(uuid: uuid)
+									completion(.success(receipt))
+								}
+								catch {
+									completion(.failure(error))
+								}
+							}
+							delegate = nil
 						}
-						delegate = nil
 					}
+					request.delegate = delegate
+					request.start()
 				}
-				request.delegate = delegate
-				request.start()*/
-				completion(.failure(error))
+				else {
+					completion(.failure(error))
+				}
 			}
 		}
-		
 		
 		func fetchUUID() {
 			if let uuid = UIDevice.current.identifierForVendor {
@@ -384,6 +342,24 @@ public class Receipt: NSObject, Encodable {
 
 	}
 	#endif
+	
+	public func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: CodingKeys.self)
+		try container.encodeIfPresent(receiptType, forKey: .receiptType)
+		try container.encodeIfPresent(bundleID, forKey: .bundleID)
+		try container.encodeIfPresent(applicationVersion, forKey: .applicationVersion)
+		try container.encodeIfPresent(opaqueValue, forKey: .opaqueValue)
+		try container.encodeIfPresent(sha1Hash, forKey: .sha1Hash)
+		try container.encodeIfPresent(originalPurchaseDate, forKey: .originalPurchaseDate)
+		try container.encodeIfPresent(originalApplicationVersion, forKey: .originalApplicationVersion)
+		try container.encodeIfPresent(creationDate, forKey: .creationDate)
+		try container.encodeIfPresent(expirationDate, forKey: .expirationDate)
+		try container.encodeIfPresent(inAppPurchases?.sorted {($0.purchaseDate ?? .distantPast) < ($1.purchaseDate ?? .distantPast)}, forKey: .inAppPurchases)
+		try container.encodeIfPresent(appItemID, forKey: .appItemID)
+		try container.encodeIfPresent(downloadID, forKey: .downloadID)
+		try container.encodeIfPresent(versionExternalIdentifier, forKey: .versionExternalIdentifier)
+		try container.encodeIfPresent(receiptCreationDate, forKey: .receiptCreationDate)
+	}
 }
 
 

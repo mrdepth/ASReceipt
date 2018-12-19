@@ -15,20 +15,20 @@ enum ParseError: Error {
 }
 
 
-class Purchase: Codable {
-	var quantity: Int
-	var productID: String
-	var transactionID: String
+class Purchase: Encodable {
+	var quantity: Int?
+	var productID: String?
+	var transactionID: String?
 	var originalTransactionID: String?
 	var derived: [Purchase]?
-	var purchaseDate: Date
+	var purchaseDate: Date?
 	var originalPurchaseDate: Date?
-	var inAppType: Receipt.InAppType
+	var inAppType: Receipt.InAppType?
 	var expiresDate: Date?
-	var isInIntroOfferPeriod: Bool
-	var isTrialPeriod: Bool
+	var isInIntroOfferPeriod: Bool?
+	var isTrialPeriod: Bool?
 	var cancellationDate: Date?
-	var webOrderLineItemID: Int
+	var webOrderLineItemID: Int?
 	
 	fileprivate enum CodingKeys: CodingKey {
 		case quantity
@@ -59,28 +59,6 @@ class Purchase: Codable {
 		isTrialPeriod = purchase.isTrialPeriod
 		cancellationDate = purchase.cancellationDate
 		webOrderLineItemID = purchase.webOrderLineItemID
-	}
-	
-	public func encode(to encoder: Encoder) throws {
-		var container = encoder.container(keyedBy: CodingKeys.self)
-		if quantity > 0 {
-			try container.encodeIfPresent(quantity, forKey: .quantity)
-		}
-		try container.encodeIfPresent(productID, forKey: .productID)
-		try container.encodeIfPresent(transactionID, forKey: .transactionID)
-		try container.encodeIfPresent(originalTransactionID, forKey: .originalTransactionID)
-		try container.encodeIfPresent(purchaseDate, forKey: .purchaseDate)
-		try container.encodeIfPresent(originalPurchaseDate, forKey: .originalPurchaseDate)
-		try container.encodeIfPresent(inAppType, forKey: .inAppType)
-		try container.encodeIfPresent(expiresDate, forKey: .expiresDate)
-		try container.encodeIfPresent(isInIntroOfferPeriod, forKey: .isInIntroOfferPeriod)
-		try container.encodeIfPresent(isTrialPeriod, forKey: .isTrialPeriod)
-		try container.encodeIfPresent(cancellationDate, forKey: .cancellationDate)
-		if webOrderLineItemID > 0 {
-			try container.encodeIfPresent(webOrderLineItemID, forKey: .webOrderLineItemID)
-		}
-		
-		try container.encodeIfPresent(derived?.sorted(by: {$0.purchaseDate < $1.purchaseDate}), forKey: .derived)
 	}
 }
 
@@ -135,7 +113,7 @@ if let input = input {
 			let purchases = receipt.inAppPurchases?.map {Purchase($0)}
 			var root = [Purchase]()
 			
-			purchases?.forEach { map[$0.transactionID, default: []].append($0) }
+			purchases?.forEach { map[$0.transactionID ?? "", default: []].append($0) }
 			purchases?.forEach {
 				if let originalTransactionID = $0.originalTransactionID, originalTransactionID != $0.transactionID, let original = map[originalTransactionID]?.first {
 					var derived = original.derived ?? []
@@ -147,7 +125,7 @@ if let input = input {
 				}
 			}
 			
-			let inapps = root.sorted {$0.purchaseDate < $1.purchaseDate}
+			let inapps = root.sorted {$0.purchaseDate ?? .distantPast < $1.purchaseDate ?? .distantPast}
 			encoded = try encoder.encode(inapps)
 			
 		}
