@@ -13,7 +13,6 @@ Pod::Spec.new do |s|
   s.static_framework = true
   s.swift_version = "4.2"
   s.dependency "openssl", "1.0.0"
-  s.xcconfig = {'SWIFT_INCLUDE_PATHS' => '"$(PODS_TARGET_SRCROOT)/Source/Skeleton"',
-				'LIBRARY_SEARCH_PATHS' => '"$(PROJECT_DIR)/openssl/Source/ThirdParty/OpenSSL/lib"'}
+  s.xcconfig = {'SWIFT_INCLUDE_PATHS' => '"$(PODS_TARGET_SRCROOT)/Source/Skeleton"'}
   s.libraries = "crypto", "ssl"
 end
