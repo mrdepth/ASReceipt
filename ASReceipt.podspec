@@ -10,6 +10,7 @@ Pod::Spec.new do |s|
   s.private_header_files = "Source/Skeleton/*.h"
   s.platform     = :ios
   s.ios.deployment_target = "9.0"
+  s.static_framework = true
   s.swift_version = "4.2"
   s.dependency "openssl", "1.0.0"
   s.xcconfig = {'SWIFT_INCLUDE_PATHS' => '"$(PODS_TARGET_SRCROOT)/Source/Skeleton"',
