@@ -1150,6 +1150,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = staticlib;
+				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = com.shimanski.Receipt;
 				PRODUCT_NAME = ASReceipt;
 				SKIP_INSTALL = YES;
@@ -1180,6 +1181,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = staticlib;
+				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = com.shimanski.Receipt;
 				PRODUCT_NAME = ASReceipt;
 				SKIP_INSTALL = YES;
@@ -1269,6 +1271,7 @@
 				PRODUCT_NAME = openssl;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				WARNING_CFLAGS = "-Wno-incomplete-umbrella";
 			};
 			name = Debug;
 		};
@@ -1295,6 +1298,7 @@
 				PRODUCT_NAME = openssl;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				WARNING_CFLAGS = "-Wno-incomplete-umbrella";
 			};
 			name = Release;
 		};

@@ -47,13 +47,6 @@ FOUNDATION_EXPORT const unsigned char OpenSSLVersionString[];
 #include <openssl/mdc2.h>
 #include <openssl/modes.h>
 #include <openssl/ocsp.h>
-//#include <openssl/opensslconf_ios_arm64.h>
-//#include <openssl/opensslconf_ios_armv7.h>
-//#include <openssl/opensslconf_ios_armv7s.h>
-//#include <openssl/opensslconf_ios_i386.h>
-//#include <openssl/opensslconf_ios_x86_64.h>
-//#include <openssl/opensslconf_tvos_arm64.h>
-//#include <openssl/opensslconf_tvos_x86_64.h>
 #include <openssl/opensslconf.h>
 #include <openssl/pem.h>
 #include <openssl/pem2.h>
