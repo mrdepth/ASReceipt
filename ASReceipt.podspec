@@ -7,6 +7,7 @@ Pod::Spec.new do |s|
   s.author       = { "Shimanski Artem" => "shimanski.artem@gmail.com" }
   s.source       = { :git => "https://github.com/mrdepth/ASReceipt.git", :branch => "master" }
   s.source_files = "Source/*.swift", "Source/Skeleton/*.{h,c}"
+  s.preserve_paths = "Source/Skeleton/module.modulemap"
   s.private_header_files = "Source/Skeleton/*.h"
   s.platform     = :ios
   s.ios.deployment_target = "9.0"
