@@ -22,7 +22,6 @@ FOUNDATION_EXPORT const unsigned char OpenSSLVersionString[];
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
-
 #include <openssl/aes.h>
 #include <openssl/asn1_mac.h>
 #include <openssl/asn1t.h>
@@ -48,12 +47,14 @@ FOUNDATION_EXPORT const unsigned char OpenSSLVersionString[];
 #include <openssl/mdc2.h>
 #include <openssl/modes.h>
 #include <openssl/ocsp.h>
-#include <openssl/opensslconf_ios_arm64.h>
-#include <openssl/opensslconf_ios_armv7.h>
-#include <openssl/opensslconf_ios_armv7s.h>
-#include <openssl/opensslconf_ios_i386.h>
-#include <openssl/opensslconf_tvos_arm64.h>
-#include <openssl/opensslconf_tvos_x86_64.h>
+//#include <openssl/opensslconf_ios_arm64.h>
+//#include <openssl/opensslconf_ios_armv7.h>
+//#include <openssl/opensslconf_ios_armv7s.h>
+//#include <openssl/opensslconf_ios_i386.h>
+//#include <openssl/opensslconf_ios_x86_64.h>
+//#include <openssl/opensslconf_tvos_arm64.h>
+//#include <openssl/opensslconf_tvos_x86_64.h>
+#include <openssl/opensslconf.h>
 #include <openssl/pem.h>
 #include <openssl/pem2.h>
 #include <openssl/pkcs12.h>
@@ -77,3 +78,4 @@ FOUNDATION_EXPORT const unsigned char OpenSSLVersionString[];
 #include <openssl/whrlpool.h>
 #include <openssl/x509v3.h>
 #include <openssl/dtls1.h>
+#include <openssl/ocsp.h>

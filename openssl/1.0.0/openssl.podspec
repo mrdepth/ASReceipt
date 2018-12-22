@@ -15,4 +15,5 @@ Pod::Spec.new do |s|
   s.vendored_libraries = "Source/ThirdParty/OpenSSL/lib/libcrypto.a", "Source/ThirdParty/OpenSSL/lib/libssl.a"
   s.libraries = "crypto", "ssl"
   s.module_map = "Source/ThirdParty/OpenSSL/iOS/module.modulemap"
+  s.xcconfig = { "WARNING_CFLAGS" => "-Wno-incomplete-umbrella" }
 end
