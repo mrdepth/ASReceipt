@@ -13,6 +13,8 @@ Pod::Spec.new do |s|
   s.static_framework = true
   s.swift_version = "4.2"
   s.dependency "openssl", "1.0.0"
-  s.xcconfig = {'SWIFT_INCLUDE_PATHS' => '"$(PODS_TARGET_SRCROOT)/Source/Skeleton"'}
+  s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '"$(PODS_TARGET_SRCROOT)/Source/Skeleton"',
+	'WARNING_CFLAGS' => '-Wno-incomplete-umbrella -Wno-shorten-64-to-32 -Wno-comma -Wno-conditional-uninitialized',
+  }
   s.libraries = "crypto", "ssl"
 end
