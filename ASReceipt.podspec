@@ -17,5 +17,4 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '"$(PODS_TARGET_SRCROOT)/Source/Skeleton"',
 	'WARNING_CFLAGS' => '-Wno-incomplete-umbrella -Wno-shorten-64-to-32 -Wno-comma -Wno-conditional-uninitialized -Wno-unreachable-code'
   }
-  s.libraries = "crypto", "ssl"
 end
