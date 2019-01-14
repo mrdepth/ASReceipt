@@ -93,7 +93,15 @@ if let input = input {
 		else {
 			data = try Data(contentsOf: input)
 		}
-
+//		Thread.sleep(forTimeInterval: 5)
+//		do {
+//			let r = (0..<30).compactMap { _ -> [Receipt.Purchase]? in
+//				let r = try! Receipt(data: data)
+//				return r.inAppPurchases
+////				return try! Receipt(data: data)
+//			}
+//		}
+//		Thread.sleep(forTimeInterval: 5)
 		let receipt = try Receipt(data: data)
 		
 		let encoder = JSONEncoder()

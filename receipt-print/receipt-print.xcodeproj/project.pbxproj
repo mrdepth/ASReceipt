@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		12A2E45F202C4CA700ADF0D6 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124BD3AC2017199400816946 /* main.swift */; };
+		12D520E021ED0ADE00B680AD /* ASReceipt.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 124BD44E20171E5B00816946 /* ASReceipt.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,6 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12D520E021ED0ADE00B680AD /* ASReceipt.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,13 +260,12 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YB4RLQ4M9A;
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../Source/ThirdParty/OpenSSL/OSX";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
-				SYSTEM_HEADER_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/include;
 			};
 			name = Debug;
 		};
@@ -274,12 +275,11 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YB4RLQ4M9A;
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../Source/ThirdParty/OpenSSL/OSX";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
-				SYSTEM_HEADER_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/include;
 			};
 			name = Release;
 		};

@@ -36,6 +36,20 @@ class RequestDelegate: NSObject, SKRequestDelegate {
 }
 #endif
 
+class UnsafeDeallocatorMutablePointer<T> {
+	var pointer: UnsafeMutablePointer<T>
+	var deallocator: (UnsafeMutablePointer<T>) -> Void
+	
+	init(_ pointer: UnsafeMutablePointer<T>, _ deallocator: @escaping (UnsafeMutablePointer<T>) -> Void) {
+		self.pointer = pointer
+		self.deallocator = deallocator
+	}
+	
+	deinit {
+		deallocator(pointer)
+	}
+}
+
 public enum ReceiptError: Error {
 	case unknown
 	case pkcs7(String)
@@ -146,7 +160,7 @@ public class Receipt: Encodable {
 		}
 	}
 	
-	private var pkcs7: UnsafeMutablePointer<PKCS7>
+	private var pkcs7: UnsafeDeallocatorMutablePointer<PKCS7>
 	private var attributes: [CodingKeys: Any]
 	
 	public lazy var receiptType: ReceiptType?					= (self.attributes[.receiptType] as? Attribute)?.value()
@@ -159,10 +173,10 @@ public class Receipt: Encodable {
 	public lazy var creationDate: Date?							= (self.attributes[.creationDate] as? Attribute)?.value()
 	public lazy var expirationDate: Date?						= (self.attributes[.expirationDate] as? Attribute)?.value()
 	public lazy var inAppPurchases: [Purchase]? = {
-		(self.attributes[.inAppPurchases] as? [Attribute])?.compactMap { i -> [Purchase.CodingKeys: Any]? in
-			guard let payload: UnsafeMutablePointer<Payload> = i.value() else {return nil}
-			return payload.attr(keyedBy: Purchase.CodingKeys.self)
-		}.map { Purchase(attributes: $0)}
+		(self.attributes[.inAppPurchases] as? [Attribute])?.compactMap { i -> Purchase? in
+			guard let payload: UnsafeDeallocatorMutablePointer<Payload> = i.value() else {return nil}
+			return Purchase(attributes: payload.pointer.attr(keyedBy: Purchase.CodingKeys.self))
+		}
 	}()
 	public lazy var appItemID: Int? 							= (self.attributes[.appItemID] as? Attribute)?.value()
 	public lazy var downloadID: Int? 							= (self.attributes[.downloadID] as? Attribute)?.value()
@@ -193,6 +207,8 @@ public class Receipt: Encodable {
 		let data = try Data(contentsOf: url)
 		try self.init(data: data)
 	}
+	
+	private var payload: UnsafeDeallocatorMutablePointer<Payload>
 
 	public init(data: Data) throws {
 		let bio = BIO_new(BIO_s_mem())
@@ -202,21 +218,25 @@ public class Receipt: Encodable {
 			BIO_write(bio, ptr, Int32(data.count))
 		}) > 0 else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
 		
-		guard let pkcs7 = d2i_PKCS7_bio(bio, nil) else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
-		var isInitialized = false
-		defer { if !isInitialized { PKCS7_free(pkcs7) } }
-		
-		let payload = pkcs7.pointee.d.sign.pointee.contents.pointee.d.data.pointee
-		var ptr: UnsafeMutableRawPointer? = nil
-		guard asn_DEF_Payload.ber_decoder(nil, &asn_DEF_Payload, &ptr, payload.data, Int(payload.length), 0).code == RC_OK else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
-		guard let pl = ptr?.assumingMemoryBound(to: Payload_t.self) else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
-		attributes = pl.attr(keyedBy: CodingKeys.self)
+		guard let pkcs7ptr = d2i_PKCS7_bio(bio, nil) else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
+		let pkcs7 = UnsafeDeallocatorMutablePointer(pkcs7ptr) { ptr in
+			PKCS7_free(ptr)
+		}
 		self.pkcs7 = pkcs7
-		isInitialized = true
-	}
-	
-	deinit {
-		PKCS7_free(pkcs7)
+		
+		let payload = pkcs7.pointer.pointee.d.sign.pointee.contents.pointee.d.data.pointee
+		var ptr: UnsafeMutableRawPointer? = nil
+		guard asn_DEF_Payload.ber_decoder(nil, &asn_DEF_Payload, &ptr, payload.data, Int(payload.length), 0).code == RC_OK,
+			let pl = ptr?.assumingMemoryBound(to: Payload_t.self) else {
+				asn_DEF_Payload.free_struct(&asn_DEF_Payload, ptr, 0)
+				throw ReceiptError.lastError() ?? ReceiptError.unknown
+		}
+
+		self.payload = UnsafeDeallocatorMutablePointer(pl, { ptr in
+			asn_DEF_Payload.free_struct(&asn_DEF_Payload, ptr, 0)
+		})
+
+		attributes = pl.attr(keyedBy: CodingKeys.self)
 	}
 	
 	public func verify(uuid: UUID) throws {
@@ -266,7 +286,7 @@ public class Receipt: Encodable {
 		
 		OpenSSL_add_all_digests()
 		defer {EVP_cleanup()}
-		guard PKCS7_verify(pkcs7, nil, store, nil, nil, 0) == 1 else {
+		guard PKCS7_verify(pkcs7.pointer, nil, store, nil, nil, 0) == 1 else {
 			ERR_load_crypto_strings()
 			defer { ERR_free_strings() }
 			let string: String = {
@@ -432,12 +452,17 @@ extension UnsafeMutablePointer where Pointee == ReceiptAttribute {
 		return i != 0
 	}
 	
-	func value() -> UnsafeMutablePointer<Payload>? {
+	func value() -> UnsafeDeallocatorMutablePointer<Payload>? {
 		switch type {
 		case (V_ASN1_SET, let length, let ptr):
 			var payload: UnsafeMutableRawPointer? = nil
-			guard asn_DEF_Payload.ber_decoder(nil, &asn_DEF_Payload, &payload, ptr, length, 0).code == RC_OK else {return nil}
-			return payload?.assumingMemoryBound(to: Payload.self)
+			guard asn_DEF_Payload.ber_decoder(nil, &asn_DEF_Payload, &payload, ptr, length, 0).code == RC_OK else {
+				asn_DEF_Payload.free_struct(&asn_DEF_Payload, payload, 0)
+				return nil
+			}
+			return (payload?.assumingMemoryBound(to: Payload.self)).map{UnsafeDeallocatorMutablePointer($0, { ptr in
+				asn_DEF_Payload.free_struct(&asn_DEF_Payload, ptr, 0)
+			})}
 		default:
 			return nil
 		}
