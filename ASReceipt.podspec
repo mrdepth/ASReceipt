@@ -13,8 +13,9 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = "9.0"
   s.static_framework = true
   s.swift_version = "4.2"
-  s.dependency "openssl", "1.0.0"
+  s.vendored_frameworks = "Source/ThirdParty/OpenSSL/iOS/openssl.framework"
   s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '"$(PODS_TARGET_SRCROOT)/Source/Skeleton"',
-	'WARNING_CFLAGS' => '-Wno-incomplete-umbrella -Wno-shorten-64-to-32 -Wno-comma -Wno-conditional-uninitialized -Wno-unreachable-code'
+		'WARNING_CFLAGS' => '-Wno-incomplete-umbrella -Wno-shorten-64-to-32 -Wno-comma -Wno-conditional-uninitialized -Wno-unreachable-code'
+		
   }
 end

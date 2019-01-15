@@ -122,8 +122,8 @@ extern "C" {
 
 #if !(defined(VMS) || defined(__VMS)) /* VMS uses logical names instead */
 #if defined(HEADER_CRYPTLIB_H) && !defined(OPENSSLDIR)
-#define ENGINESDIR "/Users/shimanski/work/git/openssl-apple/bin/AppleTVSimulator12.1-x86_64.sdk/lib/engines"
-#define OPENSSLDIR "/Users/shimanski/work/git/openssl-apple/bin/AppleTVSimulator12.1-x86_64.sdk"
+#define ENGINESDIR "/Users/shimanski/Documents/git/openssl-apple/bin/AppleTVSimulator12.1-x86_64.sdk/lib/engines"
+#define OPENSSLDIR "/Users/shimanski/Documents/git/openssl-apple/bin/AppleTVSimulator12.1-x86_64.sdk"
 #endif
 #endif
 
