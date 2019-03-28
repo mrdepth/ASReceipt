@@ -215,7 +215,7 @@ public class Receipt: Encodable {
 		defer {BIO_free(bio)}
 		
 		guard data.withUnsafeBytes ({ ptr in
-			BIO_write(bio, ptr, Int32(data.count))
+			BIO_write(bio, ptr.baseAddress, Int32(data.count))
 		}) > 0 else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
 		
 		guard let pkcs7ptr = d2i_PKCS7_bio(bio, nil) else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
@@ -256,16 +256,16 @@ public class Receipt: Encodable {
 		}
 		
 		opaqueValue.withUnsafeBytes { ptr -> Void in
-			EVP_DigestUpdate(&ctx, ptr, opaqueValue.count)
+			EVP_DigestUpdate(&ctx, ptr.baseAddress, opaqueValue.count)
 		}
 		
 		bundleID.withUnsafeBytes { ptr -> Void in
-			EVP_DigestUpdate(&ctx, ptr, bundleID.count)
+			EVP_DigestUpdate(&ctx, ptr.baseAddress, bundleID.count)
 		}
 		
 		var digest = Data(count: 20)
 		digest.withUnsafeMutableBytes { ptr -> Void in
-			EVP_DigestFinal(&ctx, ptr, nil)
+			EVP_DigestFinal(&ctx, ptr.bindMemory(to: UInt8.self).baseAddress, nil)
 		}
 		guard digest == hash else {throw ReceiptError.validationFailed(NSLocalizedString("Hash mismatch", comment: ""))}
 	}
@@ -274,7 +274,7 @@ public class Receipt: Encodable {
 		let bio = BIO_new(BIO_s_mem())
 		defer {BIO_free(bio)}
 		guard rootCertData.withUnsafeBytes ({ ptr in
-			BIO_write(bio, ptr, Int32(rootCertData.count))
+			BIO_write(bio, ptr.baseAddress, Int32(rootCertData.count))
 		}) > 0 else { throw ReceiptError.lastError() ?? ReceiptError.unknown }
 
 		let store = X509_STORE_new()
