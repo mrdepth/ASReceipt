@@ -67,11 +67,6 @@ public enum ReceiptError: Error {
 	}
 }
 
-public enum ReceiptFetchResult {
-	case success(Receipt)
-	case failure(Error)
-}
-
 public class Receipt: Encodable {
 	
 	public enum InAppType: Int, Encodable {
@@ -150,7 +145,7 @@ public class Receipt: Encodable {
 		}
 		
 		public var isExpired: Bool {
-			guard let date = expiresDate else {return true}
+			guard let date = expiresDate else {return false}
 			return date <= Date()
 		}
 		
@@ -303,7 +298,7 @@ public class Receipt: Encodable {
 	}
 	
 	#if os(iOS)
-	public class func fetchValidReceipt(refreshIfNeeded refresh: Bool, completion: @escaping(ReceiptFetchResult) -> Void) {
+	public class func fetchValidReceipt(refreshIfNeeded refresh: Bool, completion: @escaping(Result<Receipt, Error>) -> Void) {
 		var left = 3
 		
 		func fetchReceipt(uuid: UUID) {
