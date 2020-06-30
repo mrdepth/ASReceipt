@@ -1,7 +1,0 @@
-
-module Payload [extern_c]
-{
-	header "Payload.h"
-	export *
-}
-
